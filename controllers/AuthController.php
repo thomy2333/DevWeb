@@ -21,7 +21,7 @@ class AuthController {
                 // Verificar quel el usuario exista
                 $usuario = Usuario::where('email', $usuario->email);
                 if(!$usuario || !$usuario->confirmado ) {
-                    Usuario::setErrores('error', 'El Usuario No Existe o no esta confirmado');
+                    Usuario::setAlerta('error', 'El Usuario No Existe o no esta confirmado');
                 } else {
                     // El Usuario existe
                     if( password_verify($_POST['password'], $usuario->password) ) {
@@ -33,15 +33,22 @@ class AuthController {
                         $_SESSION['apellido'] = $usuario->apellido;
                         $_SESSION['email'] = $usuario->email;
                         $_SESSION['admin'] = $usuario->admin ?? null;
+
+                        //redirecionar 
+                        if($usuario->admin){
+                            header('Location: /admin/dashboard');
+                        }else{
+                            header('Location: /finalizar-registro');
+                        }
                         
                     } else {
-                        Usuario::setErrores('error', 'Password Incorrecto');
+                        Usuario::setAlerta('error', 'Password Incorrecto');
                     }
                 }
             }
         }
 
-        $alertas = Usuario::getErrores();
+        $alertas = Usuario::getAlertas();
         
         // Render a la vista 
         $router->render('auth/login', [
@@ -73,8 +80,8 @@ class AuthController {
                 $existeUsuario = Usuario::where('email', $usuario->email);
 
                 if($existeUsuario) {
-                    Usuario::setErrores('error', 'El Usuario ya esta registrado');
-                    $alertas = Usuario::getErrores();
+                    Usuario::setAlerta('error', 'El Usuario ya esta registrado');
+                    $alertas = Usuario::getAlertas();
                 } else {
                     // Hashear el password
                     $usuario->hashPassword();
@@ -165,7 +172,7 @@ class AuthController {
         $usuario = Usuario::where('token', $token);
 
         if(empty($usuario)) {
-            Usuario::setErrores('error', 'Token No Válido, intenta de nuevo');
+            Usuario::setAlerta('error', 'Token No Válido, intenta de nuevo');
             $token_valido = false;
         }
 
@@ -190,12 +197,12 @@ class AuthController {
 
                 // Redireccionar
                 if($resultado) {
-                    header('Location: /');
+                    header('Location: /login');
                 }
             }
         }
 
-        $alertas = Usuario::getErrores();
+        $alertas = Usuario::getAlertas();
         
         // Muestra la vista
         $router->render('auth/reestablecer', [
@@ -223,7 +230,7 @@ class AuthController {
 
         if(empty($usuario)) {
             // No se encontró un usuario con ese token
-            Usuario::setErrores('error', 'Token No Válido');
+            Usuario::setAlerta('error', 'Token No Válido');
         } else {
             // Confirmar la cuenta
             $usuario->confirmado = 1;
@@ -233,14 +240,14 @@ class AuthController {
             // Guardar en la BD
             $usuario->guardar();
 
-            Usuario::setErrores('exito', 'Cuenta Comprobada Correctamente');
+            Usuario::setAlerta('exito', 'Cuenta Comprobada Correctamente');
         }
 
      
 
         $router->render('auth/confirmar', [
             'titulo' => 'Confirma tu cuenta DevWebcamp',
-            'alertas' => Usuario::getErrores()
+            'alertas' => Usuario::getAlertas()
         ]);
     }
 }

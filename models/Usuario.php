@@ -30,80 +30,80 @@ class Usuario extends ActiveRecord {
         $this->password2 = $args['password2'] ?? '';
         $this->confirmado = $args['confirmado'] ?? 0;
         $this->token = $args['token'] ?? '';
-        $this->admin = $args['admin'] ?? '';
+        $this->admin = $args['admin'] ?? 0;
     }
 
     // Validar el Login de Usuarios
     public function validarLogin() {
         if(!$this->email) {
-            self::$errores['error'][] = 'El Email del Usuario es Obligatorio';
+            self::$alertas['error'][] = 'El Email del Usuario es Obligatorio';
         }
         if(!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
-            self::$errores['error'][] = 'Email no válido';
+            self::$alertas['error'][] = 'Email no válido';
         }
         if(!$this->password) {
-            self::$errores['error'][] = 'El Password no puede ir vacio';
+            self::$alertas['error'][] = 'El Password no puede ir vacio';
         }
-        return self::$errores;
+        return self::$alertas;
 
     }
 
     // Validación para cuentas nuevas
     public function validar_cuenta() {
         if(!$this->nombre) {
-            self::$errores['error'][] = 'El Nombre es Obligatorio';
+            self::$alertas['error'][] = 'El Nombre es Obligatorio';
         }
         if(!$this->apellido) {
-            self::$errores['error'][] = 'El Apellido es Obligatorio';
+            self::$alertas['error'][] = 'El Apellido es Obligatorio';
         }
         if(!$this->email) {
-            self::$errores['error'][] = 'El Email es Obligatorio';
+            self::$alertas['error'][] = 'El Email es Obligatorio';
         }
         if(!$this->password) {
-            self::$errores['error'][] = 'El Password no puede ir vacio';
+            self::$alertas['error'][] = 'El Password no puede ir vacio';
         }
         if(strlen($this->password) < 6) {
-            self::$errores['error'][] = 'El password debe contener al menos 6 caracteres';
+            self::$alertas['error'][] = 'El password debe contener al menos 6 caracteres';
         }
         if($this->password !== $this->password2) {
-            self::$errores['error'][] = 'Los password son diferentes';
+            self::$alertas['error'][] = 'Los password son diferentes';
         }
-        return self::$errores;
+        return self::$alertas;
     }
 
     // Valida un email
     public function validarEmail() {
         if(!$this->email) {
-            self::$errores['error'][] = 'El Email es Obligatorio';
+            self::$alertas['error'][] = 'El Email es Obligatorio';
         }
         if(!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
-            self::$errores['error'][] = 'Email no válido';
+            self::$alertas['error'][] = 'Email no válido';
         }
-        return self::$errores;
+        return self::$alertas;
     }
 
     // Valida el Password 
     public function validarPassword() {
         if(!$this->password) {
-            self::$errores['error'][] = 'El Password no puede ir vacio';
+            self::$alertas['error'][] = 'El Password no puede ir vacio';
         }
         if(strlen($this->password) < 6) {
-            self::$errores['error'][] = 'El password debe contener al menos 6 caracteres';
+            self::$alertas['error'][] = 'El password debe contener al menos 6 caracteres';
         }
-        return self::$errores;
+        return self::$alertas;
     }
 
     public function nuevo_password() : array {
         if(!$this->password_actual) {
-            self::$errores['error'][] = 'El Password Actual no puede ir vacio';
+            self::$alertas['error'][] = 'El Password Actual no puede ir vacio';
         }
         if(!$this->password_nuevo) {
-            self::$errores['error'][] = 'El Password Nuevo no puede ir vacio';
+            self::$alertas['error'][] = 'El Password Nuevo no puede ir vacio';
         }
         if(strlen($this->password_nuevo) < 6) {
-            self::$errores['error'][] = 'El Password debe contener al menos 6 caracteres';
+            self::$alertas['error'][] = 'El Password debe contener al menos 6 caracteres';
         }
-        return self::$errores;
+        return self::$alertas;
     }
 
     // Comprobar el password

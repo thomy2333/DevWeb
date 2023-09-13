@@ -2,24 +2,98 @@
 namespace Model;
 class ActiveRecord {
 
-    //base de datos
+    // Base DE DATOS
     protected static $db;
-    protected static $columnasDB = [];
     protected static $tabla = '';
+    protected static $columnasDB = [];
 
-    //Visibilidad de los atributos
+    //declarar visilidad
     public $id;
-    public $imagen;
 
-    //errores
-    protected static $errores = [];   
-
-    //definir la conexion la base de datos
-    public static function setDB($database){
+    // Alertas y Mensajes
+    protected static $alertas = [];
+    
+    // Definir la conexión a la BD - includes/database.php
+    public static function setDB($database) {
         self::$db = $database;
     }
 
-    
+    // Setear un tipo de Alerta
+    public static function setAlerta($tipo, $mensaje) {
+        static::$alertas[$tipo][] = $mensaje;
+    }
+
+    // Obtener las alertas
+    public static function getAlertas() {
+        return static::$alertas;
+    }
+
+    // Validación que se hereda en modelos
+    public function validar() {
+        static::$alertas = [];
+        return static::$alertas;
+    }
+
+    // Consulta SQL para crear un objeto en Memoria (Active Record)
+    public static function consultarSQL($query) {
+        // Consultar la base de datos
+        $resultado = self::$db->query($query);
+
+        // Iterar los resultados
+        $array = [];
+        while($registro = $resultado->fetch_assoc()) {
+            $array[] = static::crearObjeto($registro);
+        }
+
+        // liberar la memoria
+        $resultado->free();
+
+        // retornar los resultados
+        return $array;
+    }
+
+    // Crea el objeto en memoria que es igual al de la BD
+    protected static function crearObjeto($registro) {
+        $objeto = new static;
+
+        foreach($registro as $key => $value ) {
+            if(property_exists( $objeto, $key  )) {
+                $objeto->$key = $value;
+            }
+        }
+        return $objeto;
+    }
+
+    // Identificar y unir los atributos de la BD
+    public function atributos() {
+        $atributos = [];
+        foreach(static::$columnasDB as $columna) {
+            if($columna === 'id') continue;
+            $atributos[$columna] = $this->$columna;
+        }
+        return $atributos;
+    }
+
+    // Sanitizar los datos antes de guardarlos en la BD
+    public function sanitizarAtributos() {
+        $atributos = $this->atributos();
+        $sanitizado = [];
+        foreach($atributos as $key => $value ) {
+            $sanitizado[$key] = self::$db->escape_string($value);
+        }
+        return $sanitizado;
+    }
+
+    // Sincroniza BD con Objetos en memoria
+    public function sincronizar($args=[]) { 
+        foreach($args as $key => $value) {
+          if(property_exists($this, $key) && !is_null($value)) {
+            $this->$key = $value;
+          }
+        }
+    }
+
+    // Registros - CRUD
     public function guardar() {
         $resultado = '';
         if(!is_null($this->id)) {
@@ -32,16 +106,47 @@ class ActiveRecord {
         return $resultado;
     }
 
-    public function crear(){
-        //sanitizar los datos
+    // Obtener todos los Registros
+    public static function all() {
+        $query = "SELECT * FROM " . static::$tabla . " ORDER BY id DESC";
+        $resultado = self::consultarSQL($query);
+        return $resultado;
+    }
+
+    // Busca un registro por su id
+    public static function find($id) {
+        $query = "SELECT * FROM " . static::$tabla  ." WHERE id = $id";
+        $resultado = self::consultarSQL($query);
+        return array_shift( $resultado ) ;
+    }
+
+    // Obtener Registros con cierta cantidad
+    public static function get($limite) {
+        $query = "SELECT * FROM " . static::$tabla . " LIMIT $limite ORDER BY id DESC" ;
+        $resultado = self::consultarSQL($query);
+        return array_shift( $resultado ) ;
+    }
+
+    // Busqueda Where con Columna 
+    public static function where($columna, $valor) {
+        $query = "SELECT * FROM " . static::$tabla . " WHERE $columna = '$valor'";
+        $resultado = self::consultarSQL($query);
+        return array_shift( $resultado ) ;
+    }
+
+    // crea un nuevo registro
+    public function crear() {
+        // Sanitizar los datos
         $atributos = $this->sanitizarAtributos();
 
-        //insertar en la base de datos
+        // Insertar en la base de datos
         $query = " INSERT INTO " . static::$tabla . " ( ";
         $query .= join(', ', array_keys($atributos));
-        $query .= " ) VALUES (' ";
+        $query .= " ) VALUES (' "; 
         $query .= join("', '", array_values($atributos));
         $query .= " ') ";
+
+        // debuguear($query); // Descomentar si no te funciona algo
 
         // Resultado de la consulta
         $resultado = self::$db->query($query);
@@ -51,6 +156,7 @@ class ActiveRecord {
         ];
     }
 
+    // Actualizar el registro
     public function actualizar() {
         // Sanitizar los datos
         $atributos = $this->sanitizarAtributos();
@@ -72,148 +178,10 @@ class ActiveRecord {
         return $resultado;
     }
 
-    //eliminar un registro
-    public function eliminar(){
-        $query = "DELETE FROM " . static::$tabla . " WHERE id = " . self::$db->escape_string($this->id) . " LIMIT 1";
+    // Eliminar un Registro por su ID
+    public function eliminar() {
+        $query = "DELETE FROM "  . static::$tabla . " WHERE id = " . self::$db->escape_string($this->id) . " LIMIT 1";
         $resultado = self::$db->query($query);
-
         return $resultado;
-
-        // if ($resultado) {
-        //     $this->borrarImagen();
-        //     header('Location: /admin?resultado=3');
-        // }
-    }
-
-    public function atributos(){
-        $atributos = [];
-        foreach(static::$columnasDB as $columna) {
-            if($columna === 'id') continue;
-            $atributos[$columna] = $this->$columna;
-        }
-        return $atributos;
-    }
-
-    public function sanitizarAtributos(){
-        $atributos = $this->atributos();
-        $sanitizado = [];
-
-        foreach($atributos as $key=> $value) {
-            $sanitizado[$key] = self::$db->escape_string($value);
-        }
-
-        return $sanitizado;
-    }  
-
-    public function setImagen($imagen){
-        //elimina la imagen previa
-        if(isset($this->id)){
-           $this->borrarImagen();
-        }
-        //asignar al a tributo de imagen el nombre de la imagen
-        if($imagen){
-            $this->imagen = $imagen;
-        }
-    }
-
-    //elimina el archivo
-    public function borrarImagen() {
-        // Comprobar si existe el archivo
-        $existeArchivo = file_exists(CARPETA_IMAGENES . $this->imagen);
-        if($existeArchivo) {
-            unlink(CARPETA_IMAGENES . $this->imagen);
-        }
-    }
-    
-    //validacion 
-
-    public static function setErrores($tipo, $mensaje) {
-        static::$errores[$tipo][] = $mensaje;
-    }
-
-    public static function getErrores(){
-        return static::$errores;
-    }
-
-    public function validar(){
-        static::$errores = [];
-       return static::$errores;
-    }
-
-    //lista todas las propiedades
-    public static function all(){
-        $query = "SELECT * FROM " . static::$tabla;
-
-        $resultado = self::consultaSQL($query);
-
-        return $resultado;
-    }
-
-    //obtener determinado numero de resistros
-    public static function get($cantidad){
-        $query = "SELECT * FROM " . static::$tabla . " LIMIT " . $cantidad;
-
-        $resultado = self::consultaSQL($query);
-
-        return $resultado;
-    }
-
-    //busca un registro por su id
-    public static function find($id){
-        $query = "SELECT * FROM " . static::$tabla . " WHERE id = $id";
-
-        $resultado = self::consultaSQL($query);
-
-        return array_shift($resultado);
-    }
-
-    public static function where($columna, $valor){
-        $query = "SELECT * FROM " . static::$tabla . " WHERE $columna = '$valor'";
-        $resultado = self::consultaSQL($query);
-        return array_shift($resultado);
-    }
-
-    //Consulta plana
-    public static function SQL($query){
-        $resultado = self::consultaSQL($query);
-        return $resultado;
-    }
-
-    public static function consultaSQL($query){
-        //consultar la base de datos
-        $resultado = self::$db->query($query);
-
-        //iterar los resultados
-        $array = [];
-        while($registro = $resultado->fetch_assoc()){
-            $array[] = static::crearObjeto($registro);
-        }
-
-        //liberar memoria
-        $resultado->free();
-
-        //retornar los resultados
-        return $array;
-    }
-
-    protected static function crearObjeto($registro){
-        $objeto = new static;
-
-        foreach($registro as $key => $value) {
-            if(property_exists($objeto, $key)) {
-                $objeto->$key = $value;
-            }
-        }
-
-        return $objeto;
-    }
-
-    //sincroniza el objeto en memoria con los cambios realizados por el usuario
-    public function sincronizar( $args = []){
-        foreach($args as $key => $value){
-            if(property_exists($this, $key) && !is_null($value)){
-                $this->$key = $value;
-            }
-        }
     }
 }
