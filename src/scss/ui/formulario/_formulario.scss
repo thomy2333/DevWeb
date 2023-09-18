@@ -63,6 +63,13 @@
         }
     }
 
+    &__texto{
+        margin-top: 3rem;
+    }
+    &__imagen{
+        max-width: 20rem;
+    }
+
     &__listado{
         @include m.tags;
     }
