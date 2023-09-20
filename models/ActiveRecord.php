@@ -141,6 +141,20 @@ class ActiveRecord {
         return array_shift( $resultado ) ;
     }
 
+    // Busqueda Where con multiple opciones 
+    public static function whereArray($array = []) {
+        $query = "SELECT * FROM " . static::$tabla . " WHERE ";
+        foreach($array as $key => $value) {
+            if($key == array_key_last($array)){
+                $query .= " $key = '$value' ";
+            }else{
+                $query .= " $key = '$value' AND ";
+            }
+        }
+        $resultado = self::consultarSQL($query);
+        return array_shift( $resultado ) ;
+    }
+
     //traer el total de registros
     public static function total(){
         $query = "SELECT COUNT(*) FROM " . static::$tabla;
