@@ -32,7 +32,7 @@ class Eventocontroller {
                 $resultado = $evento->guardar();
 
                 if($resultado){
-                    header('Location: /admin/aventos');
+                    header('Location: /admin/eventos');
                 }
             }
         }
