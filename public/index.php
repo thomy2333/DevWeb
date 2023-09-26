@@ -50,9 +50,13 @@ $router->post('/admin/ponentes/eliminar', [PonentesController::class, 'eliminar'
 $router->get('/admin/eventos', [Eventocontroller::class, 'index']);
 $router->get('/admin/eventos/crear', [Eventocontroller::class, 'crear']);
 $router->post('/admin/eventos/crear', [Eventocontroller::class, 'crear']);
+$router->get('/admin/eventos/editar', [Eventocontroller::class, 'editar']);
+$router->post('/admin/eventos/editar', [Eventocontroller::class, 'editar']);
+$router->post('/admin/eventos/eliminar', [Eventocontroller::class, 'eliminar']);
 
 $router->get('/api/eventos-horario', [APIEventos::class, 'index']);
 $router->get('/api/ponentes', [APIPonentes::class, 'index']);
+$router->get('/api/ponente', [APIPonentes::class, 'ponente']);
 
 $router->get('/admin/registrados', [Registradoscontroller::class, 'index']);
 $router->get('/admin/regalos', [RegalosController::class, 'index']);

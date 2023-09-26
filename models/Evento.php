@@ -14,6 +14,10 @@ class Evento extends ActiveRecord {
     public $dia_id;
     public $hora_id;
     public $ponente_id;
+    public $categoria;
+    public $dia;
+    public $hora;
+    public $ponente;
 
     public function __construct($args = [])
     {
