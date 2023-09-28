@@ -453,6 +453,16 @@ h3 {
 .eventos--workshops .eventos__heading {
   color: #00c8c2;
 }
+.eventos--workshops .evento__informacion {
+  background-color: #00c8c2;
+}
+.eventos--workshops .evento__informacion:hover {
+  background-color: #009591;
+}
+.eventos .swiper-button-next,
+.eventos .swiper-button-prev {
+  color: rgba(255, 255, 255, 0.5);
+}
 
 .evento__hora {
   font-weight: 700;
@@ -466,6 +476,14 @@ h3 {
 }
 .evento__informacion:hover {
   background-color: #0063c1;
+}
+.evento__nombre {
+  font-size: 2.4rem;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .evento__introduccion {
   font-size: 1.6rem;
@@ -667,14 +685,19 @@ h3 {
     justify-content: flex-end;
   }
 }
-.header__enlace {
+.header__enlace, .header__submit {
+  all: unset;
   color: #FFFFFF;
   font-size: 1.4rem;
   text-transform: uppercase;
   font-weight: 700;
 }
-.header__enlace:hover {
+.header__enlace:hover, .header__submit:hover {
   color: #007df4;
+  cursor: pointer;
+}
+.header__form {
+  display: flex;
 }
 .header__contenido {
   padding-top: 10rem;
@@ -685,7 +708,7 @@ h3 {
   }
 }
 .header__logo {
-  font-size: clamp(1rem, -0.8rem + 10vw, 8rem);
+  font-size: clamp(2rem, -0.8rem + 10vw, 8rem);
   background: linear-gradient(to right, #007df4, #00c8c2);
   -webkit-background-clip: text;
   color: transparent;
@@ -694,7 +717,7 @@ h3 {
 @media (min-width: 768px) {
   .header__logo {
     text-align: left;
-    display: block;
+    display: inline-block;
   }
 }
 .header__texto {
@@ -710,7 +733,7 @@ h3 {
     text-align: left;
   }
 }
-.header__texto__modalidad {
+.header__texto--modalidad {
   font-size: 2rem;
 }
 .header__boton {
@@ -779,13 +802,13 @@ h3 {
 }
 .navegacion__enlace {
   color: #FFFFFF;
-  font-size: 2.2rem;
+  font-size: 2rem;
   padding: 2rem;
   font-weight: 900;
   text-transform: uppercase;
   text-align: center;
 }
-.navegacion__enlace:hover {
+.navegacion__enlace--actual, .navegacion__enlace:hover {
   background-color: #FFFFFF;
   color: #007df4;
 }
