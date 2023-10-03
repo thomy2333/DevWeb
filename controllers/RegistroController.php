@@ -10,6 +10,17 @@ use Model\Registro;
 class RegistroController {
     public static function crear(Router $router){
 
+        if(!is_auth()){
+            header('location: /');
+        }
+
+        //vewrificar si el usuario ya esta registrado
+        $registro = Registro::where('usuario_id', $_SESSION['id']);
+
+        if(isset($registro) && $registro->paquete_id === "3"){
+            header('location: /boleto?id=' . urlencode($registro->token));
+        }
+
         $router->render('registro/crear', [
             'titulo' => 'Finalizar Registro',
         ]);
@@ -20,6 +31,13 @@ class RegistroController {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             if(!is_auth()){
                 header('location: /login');
+            }
+
+             //vewrificar si el usuario ya esta registrado
+            $registro = Registro::where('usuario_id', $_SESSION['id']);
+
+            if(isset($registro) && $registro->paquete_id === "3"){
+                header('location: /boleto?id=' . urlencode($registro->token));
             }
 
             $token = substr( md5( uniqid( rand(), true)), 0, 8);
@@ -65,6 +83,37 @@ class RegistroController {
             'titulo' => 'Asistencia a DevWebCamp',
             'registro' => $registro
         ]);
+    }
+
+    public static function pagar (Router $router){
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if(!is_auth()){
+                header('location: /login');
+            }
+
+            //validar que el post no benga vacio
+            if(empty($_POST)){
+                json_encode([]);
+                return;
+            }
+
+            //crear el registro
+            $datos = $_POST;
+            $datos['token'] = substr( md5( uniqid( rand(), true)), 0, 8);
+            $datos['usuario_id'] = $_SESSION['id'];
+            
+            try {
+                $registro = new Registro($datos);
+                $resultado = $registro->guardar();
+                echo json_encode($resultado);
+            } catch (\Throwable $th) {
+                echo json_encode([
+                    'resultado' => 'error'
+                ]);
+            }
+
+        }
     }
 
 }
