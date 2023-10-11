@@ -11,6 +11,7 @@ use Model\Ponente;
 use Model\Usuario;
 use Model\Registro;
 use Model\Categoria;
+use Model\Regalo;
 
 class RegistroController {
     public static function crear(Router $router){
@@ -158,10 +159,44 @@ class RegistroController {
             }
         }
 
+        $regalos  = Regalo::all('ASC');
+
+        //m,anejar el registro mediante POST 
+        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            //revisar que el usuario este autenticado
+            if(!is_auth()){
+                header('location: /login');
+            }
+
+            $eventos = explode(',', $_POST['eventos']);
+            if(empty($eventos)){
+                echo json_encode(['resultado' => false]);
+                return;
+            }
+
+            //obtener el registro del usuario
+            $registro = Registro::where('usuario_id', $_SESSION['id']);
+            if(!isset($registro) || $registro->paquete_id !== "1"){
+                echo json_encode(['resultado' => false]);
+                return;
+            }
+
+            //validar la disponibilidad
+            foreach($eventos as $evento_id){
+                $evento = Evento::find($evento_id);
+
+                //comprobar que el evento exista
+                if(!isset($evento) || $evento->disponible === "0"){
+                    echo json_encode(['resultado' => false]);
+                    return;
+                }
+            }
+        }
 
         $router->render('registro/conferencias', [
             'titulo' => 'Elige Workshops y conferencias',
-            'eventos' => $eventos_formatiados
+            'eventos' => $eventos_formatiados,
+            'regalos' => $regalos
                 
         ]);
     }
