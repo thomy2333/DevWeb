@@ -18,6 +18,8 @@ class Evento extends ActiveRecord {
     public $dia;
     public $hora;
     public $ponente;
+    public $disponible;
+
 
     public function __construct($args = [])
     {
@@ -29,6 +31,8 @@ class Evento extends ActiveRecord {
         $this->dia_id = $args['dia_id'] ?? '';
         $this->hora_id = $args['hora_id'] ?? '';
         $this->ponente_id = $args['ponente_id'] ?? '';
+        $this->disponible = $args['disponibles'] ?? '';
+
     }
 
     // Mensajes de validación para la creación de un evento
