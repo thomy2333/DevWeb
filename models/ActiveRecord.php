@@ -122,9 +122,9 @@ class ActiveRecord {
 
     // Obtener Registros con cierta cantidad
     public static function get($limite) {
-        $query = "SELECT * FROM " . static::$tabla . " LIMIT $limite ORDER BY id DESC" ;
+        $query = "SELECT * FROM " . static::$tabla . "  ORDER BY id DESC LIMIT $limite" ;
         $resultado = self::consultarSQL($query);
-        return array_shift( $resultado ) ;
+        return $resultado ;
     }
 
     //paginar los registros
@@ -147,6 +147,14 @@ class ActiveRecord {
         $resultado = self::consultarSQL($query);
         return $resultado;
     }
+
+    //retornar los registro por orden y limite
+    public static function ordenarLimite($columna, $orden, $limite) {
+        $query = "SELECT * FROM " . static::$tabla . " ORDER BY $columna $orden LIMIT $limite";
+        $resultado = self::consultarSQL($query);
+        return $resultado;
+    }
+    
 
     // Busqueda Where con multiple opciones 
     public static function whereArray($array = []) {
@@ -173,6 +181,22 @@ class ActiveRecord {
 
         return array_shift($total);
     }
+
+       // Total de Registros con un Array Where
+       public static function totalArray($array = []) {
+        $query = "SELECT COUNT(*) FROM " . static::$tabla . " WHERE ";
+        foreach($array as $key => $value) {
+            if($key == array_key_last($array)) {
+                $query .= " $key = 'value' ";
+            } else {
+                $query .= " $key = 'value' AND ";
+            }
+        }
+        $resultado = self::$db->query($query);
+        $total = $resultado->fetch_array();
+        return array_shift($total);
+    }
+
 
     // crea un nuevo registro
     public function crear() {
