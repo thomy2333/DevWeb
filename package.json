@@ -1,12 +1,13 @@
 {
   "name": "devwebcamp-php-mvc-mysql",
   "version": "1.0.0",
-  "description": "Proyecto Final Desarrollo Web Completo con @codigoconjuan",
+  "description": "Proyecto Final Desarrollo Web Completo",
   "main": "index.js",
   "scripts": {
-    "dev": "gulp dev"
+    "dev": "gulp dev",
+    "build": "gulp build"
   },
-  "author": "",
+  "author": "Juan Thomas",
   "license": "ISC",
   "devDependencies": {
     "css-loader": "^6.8.1",
